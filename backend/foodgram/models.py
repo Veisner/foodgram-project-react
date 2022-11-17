@@ -1,13 +1,13 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-from recipes.models import Recipe
 
-User = get_user_model()
+from recipes.models import Recipe
+from users.models import CustomUser
+
 
 
 class Basket(models.Model):
     user = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='basket')
     recipe = models.ForeignKey(
