@@ -1,9 +1,20 @@
-from drf_extra_fields.fields import Base64ImageField
+import base64
+from django.core.files.base import ContentFile
+# from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import Ingredient, IngredientsAmount, Recipe, Tag
 from users.models import CustomUser, Follow
 
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')  
+            ext = format.split('/')[-1]  
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+        return super().to_internal_value(data)
 
 class CustomUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
@@ -45,12 +56,20 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-    author = CustomUserSerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
+    image = Base64ImageField(
+        required=False,
+        allow_null=True
+    )
+    author = CustomUserSerializer(
+        read_only=True
+    )
+    tags = TagSerializer(
+        many=True,
+        read_only=True
+    )
     ingredients = IngredientsAmountSerializer(
         source='ingredients',
-        many=True, read_only=True,
+        many=True, read_only=True
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()

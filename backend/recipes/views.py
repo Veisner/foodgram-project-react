@@ -33,6 +33,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     http_method_names = ('get', 'post', 'put', 'patch', 'delete',)
 
 
-class CustomUserViewSet(viewsets.UserViewSet):
+class CustomUserViewSet(viewsets.ViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
