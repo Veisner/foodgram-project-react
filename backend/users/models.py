@@ -3,8 +3,6 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'password', 'first_name', 'last_name']
     ROLE_USER = 'user'
     ROLE_ADMIN = 'admin'
     ROLES = (
@@ -20,7 +18,7 @@ class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        verbose_name='Уникальный юзернейм'
+        verbose_name='Имя пользователя'
     )
     password = models.TextField(
         max_length=150,
