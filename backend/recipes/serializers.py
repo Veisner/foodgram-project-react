@@ -55,7 +55,7 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'amount', 'measurement_unit')
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeListSerializer(serializers.ModelSerializer):
     image = Base64ImageField(
         required=False,
         allow_null=True
@@ -98,3 +98,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             shopping_cart__user=user,
             id=obj.id
         ).exists()
+
+
+class RecipeEditSerializer(serializers.ModelSerializer):
+    pass
