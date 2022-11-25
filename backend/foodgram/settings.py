@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'users',
     'recipes',
     'api',
-    'foodgram',
 ]
 
 MIDDLEWARE = [

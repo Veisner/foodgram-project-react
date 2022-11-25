@@ -3,7 +3,7 @@ from django.core.files.base import ContentFile
 # from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from .models import Ingredient, IngredientsAmount, Recipe, Tag
+from .models import Ingredient, IngredientsAmount, Recipe, Tag, Favorite
 from users.models import CustomUser, Follow
 
 
@@ -68,7 +68,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only=True
     )
     ingredients = IngredientsAmountSerializer(
-        source='ingredients',
+        source='recipe_ingredients',
         many=True, read_only=True
     )
     is_favorited = serializers.SerializerMethodField()
@@ -76,6 +76,25 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'name', 'text',
-                  'image', 'ingredients', 'cooking_time',
-                  'is_favorited', 'is_in_shopping_cart')
+        fields = ('id', 'tags', 'author', 'ingredients',
+                  'is_favorited', 'is_in_shopping_cart',
+                  'name', 'image', 'text', 'cooking_time'
+        )
+    
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Favorite.objects.filter(
+            user=user,
+            recipe=obj
+        ).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Recipe.objects.filter(
+            shopping_cart__user=user,
+            id=obj.id
+        ).exists()
