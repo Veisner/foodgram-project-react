@@ -161,7 +161,7 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
 
     'DEFAULT_PAGINATION_CLASS':
@@ -170,9 +170,21 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'PASSWORD_RESET_CONFIRM_URL': 'users/reset_password/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': 'users/reset_email/{uid}/{token}',
-    'ACTIVATION_URL': 'users/activation/{uid}/{token}',
+#     'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+#    'PERMISSIONS': {
+#        'activation': ['rest_framework.permissions.AllowAny'],
+#        'password_reset': ['rest_framework.permissions.AllowAny'],
+#        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
+#        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
+#        'username_reset': ['rest_framework.permissions.AllowAny'],
+#        'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
+#        'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
+#        'user_create': ['rest_framework.permissions.AllowAny'],
+#        'user_delete': ['djoser.permissions.CurrentUserOrAdmin'],
+#        'user': ['rest_framework.permissions.AllowAny'],
+#        'user_list': ['rest_framework.permissions.AllowAny'],
+#        'token_create': ['rest_framework.permissions.AllowAny'],
+#        'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
+#    }
 }
-
