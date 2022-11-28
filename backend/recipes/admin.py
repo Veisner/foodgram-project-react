@@ -22,7 +22,7 @@ class TagAdmin(ModelAdmin):
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit',)
+    list_display = ('id', 'name', 'measurement_unit',)
     search_fields = ('name',)
     ordering = ('name',)
     empty_value_display = '-пусто-'

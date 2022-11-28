@@ -37,7 +37,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return RecipeListSerializer
-        return RecipeListSerializer
+        return RecipeEditSerializer
     
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
