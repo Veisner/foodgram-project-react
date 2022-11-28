@@ -98,6 +98,38 @@ class RecipeListSerializer(serializers.ModelSerializer):
             shopping_cart__user=user,
             id=obj.id
         ).exists()
+    
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                'В рецепте не заполнены ингредиенты!')
+        return ingredients
+
+    def validate_tags(self, tags):
+        if not tags:
+            raise serializers.ValidationError('В рецепте не заполнены теги!')
+        return tags
+
+    def validate_image(self, image):
+        if not image:
+            raise serializers.ValidationError('Добавьте картинку рецепта!')
+        return image
+
+    def validate_name(self, name):
+        if not name:
+            raise serializers.ValidationError('Не заполнено название рецепта!')
+        return name
+
+    def validate_text(self, text):
+        if not text:
+            raise serializers.ValidationError('Не заполнено описание рецепта!')
+        return text
+
+    def validate_cooking_time(self, cooking_time):
+        if not cooking_time:
+            raise serializers.ValidationError(
+                'Не заполнено время приготовления рецепта!')
+        return cooking_time
 
 
 class RecipeEditSerializer(serializers.ModelSerializer):

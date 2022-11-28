@@ -138,6 +138,11 @@ class IngredientsAmount(models.Model):
         return f'{self.amount} {self.ingredient}'
 
 
+class TagsRecipe(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+
 class Favorite(models.Model):
     user = models.ForeignKey(
         CustomUser,

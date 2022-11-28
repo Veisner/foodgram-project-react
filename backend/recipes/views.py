@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from .filters import IngredientFilter, RecipeFilter
 from .models import Ingredient, Recipe, Tag
 from users.models import CustomUser
-from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
+from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly, AuthorOrReadOnly
 from .serializers import CustomUserSerializer, IngredientSerializer, RecipeListSerializer, RecipeEditSerializer, TagSerializer
 
 
@@ -29,15 +29,15 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    permission_classes = (AuthorOrAdminOrReadOnly,)
-    queryset = Recipe.objects.select_related('author')
+    permission_classes = (AuthorOrReadOnly,)
+    queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return RecipeListSerializer
-        return RecipeEditSerializer
+        return RecipeListSerializer
     
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
