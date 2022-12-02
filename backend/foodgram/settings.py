@@ -32,11 +32,11 @@ DEBUG = os.environ.get('DEBUG', default=False)
 # DEBUG = True
 ALLOWED_HOSTS = ['*']
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:3000',
-# ]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 
 CORS_URLS_REGEX = r'^/api/.*$'
 
@@ -191,7 +191,7 @@ SWAGGER_SETTINGS = {
 }
 
 DJOSER = {
-#     'LOGIN_FIELD': 'email',
+    'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
 #    'PERMISSIONS': {
 #        'activation': ['rest_framework.permissions.AllowAny'],
