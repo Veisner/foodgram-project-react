@@ -1,7 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from users.models import CustomUser
+User = get_user_model()
 
 
 class Tag(models.Model):
@@ -52,15 +53,15 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    name = models.CharField(
-        max_length=200,
-        verbose_name='Название'
-    )
     author = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
         related_name='recipes'
+    )
+    name = models.CharField(
+        max_length=200,
+        verbose_name='Название'
     )
     image = models.ImageField(
         blank=True,
@@ -73,23 +74,25 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='IngredientsAmount',
-        related_name='recipes',
+        through='IngredientRecipe',
+#        related_name='recipes',
         verbose_name='Ингредиенты'
     )
     tags = models.ManyToManyField(
         Tag,
-        verbose_name='Тэг',
-        related_name='recipes'
-    )
-    cooking_time = models.PositiveIntegerField(
-#        validators=(MinValueValidator(1)
-#        ),
-        verbose_name='Время приготовления'
+#        related_name='recipes',
+        verbose_name='Тэг'
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации'
+    )
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name = 'Время приготовления',
+        validators=(
+            MinValueValidator(
+                1, message='Минимум 1 минута.'),
+        )
     )
 
     class Meta:
@@ -101,26 +104,25 @@ class Recipe(models.Model):
         return self.name
 
 
-class IngredientsAmount(models.Model):
-    ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
-        verbose_name='Ингредиенты'
-    )
+class IngredientRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
+        related_name='ingredient_recipe',
         verbose_name='Рецепт'
     )
-    amount = models.PositiveIntegerField(
-#        validators=(MinValueValidator(1,
-#            message='Минимум 1 ингридиент'
-#            )
-#        ),
-        default=1,
-        verbose_name='Количество ингридиентов'
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='ingredient_recipe',
+                verbose_name='Ингредиент'
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name = 'Колличество',
+        validators=(
+            MinValueValidator(
+                1, message='Минимум 1 ингредиент.'),
+        )
     )
 
     class Meta:
@@ -138,23 +140,23 @@ class IngredientsAmount(models.Model):
         return f'{self.amount} {self.ingredient}'
 
 
-class TagsRecipe(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+# class TagsRecipe(models.Model):
+#     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+#     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
 
 class Favorite(models.Model):
     user = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        related_name='favorites'
+        related_name='favorite_recipe',
+        verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-        related_name='favorites'
+        related_name='favorite_recipe',
+        verbose_name='Рецепт'
     )
 
     class Meta:
@@ -174,7 +176,7 @@ class Favorite(models.Model):
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='shopping_cart',
         verbose_name='Пользователь'
