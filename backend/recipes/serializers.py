@@ -5,8 +5,9 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 # from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework import validators
 
-from .models import Ingredient, IngredientsAmount, Recipe, Tag, Favorite, TagsRecipe
+from .models import Ingredient, IngredientsAmount, Recipe, Tag, Favorite, TagsRecipe, ShoppingCart
 from users.models import CustomUser, Follow
 
 
@@ -236,3 +237,83 @@ class RecipeEditSerializer(serializers.ModelSerializer):
             context=self.context
         )
         return serializer.data
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('user', 'recipe')
+        model = Favorite
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe'),
+                message='"Этот рецепт уже в избранном"'
+            )
+        ]
+
+    def to_representation(self, instance):
+        requset = self.context.get('request')
+        return RecipeListSerializer(
+            instance.recipe,
+            context={'request': requset}
+        ).data
+
+
+class ShoppingCartSerializer(FavoriteSerializer):
+    class Meta(FavoriteSerializer.Meta):
+        model = ShoppingCart
+        fields = '__all__'
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=ShoppingCart.objects.all(),
+                fields=('user', 'recipe'),
+                message='"Этот рецепт уже есть в корзине"'
+            )
+        ]
+
+    def to_representation(self, instance):
+        requset = self.context.get('request')
+        return RecipeListSerializer(
+            instance.recipe,
+            context={'request': requset}
+        ).data
+
+
+class FollowingSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count', )
+
+    def get_is_subscribed(self, obj):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(
+            user=user,
+            author=obj
+        ).exists()
+
+    def get_recipes(self, obj):
+        limit = self.context['request'].query_params.get('recipes_limit')
+        if limit is None:
+            recipes = obj.recipes.all()
+        else:
+            recipes = obj.recipes.all()[:int(limit)]
+        return FollowingSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()

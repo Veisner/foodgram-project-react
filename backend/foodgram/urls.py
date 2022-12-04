@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import TemplateView
+from foodgram.settings import DEBUG
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -36,6 +37,10 @@ urlpatterns += [
        name='schema-redoc'),
 ]
 
-if settings.DEBUG:
+if DEBUG:
+    import debug_toolbar
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls), name='debug_toolbar')
+    ]
