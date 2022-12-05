@@ -62,9 +62,12 @@ class SubscriptionsRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time',)
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
+class SubscribersSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
+    recipes = SubscriptionsRecipeSerializer(
+        many=True,
+        read_only=True
+    )
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -81,16 +84,34 @@ class SubscribeSerializer(serializers.ModelSerializer):
             author=obj
         ).exists()
 
-    def get_recipes(self, obj):
-        limit = self.context['request'].query_params.get('recipes_limit')
-        if limit is None:
-            recipes = obj.recipes.all()
-        else:
-            recipes = obj.recipes.all()[:int(limit)]
-        return SubscriptionsRecipeSerializer(recipes, many=True).data
-
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = '__all__'
+
+    def validate(self, attrs):
+        request = self.context['request']
+        if request.method == 'GET':
+            if request.user == attrs['author']:
+                raise serializers.ValidationError(
+                    'Нельзя подписаться на себя'
+                )
+            if Subscribe.objects.filter(
+                    user=request.user,
+                    author=attrs['author']
+            ).exists():
+                raise serializers.ValidationError('Вы уже подписаны')
+        return attrs
+
+    def to_representation(self, instance):
+        return SubscribersSerializer(
+            instance.author,
+            context={'request': self.context.get('request')}
+        ).data
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -98,19 +119,23 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('user', 'recipe')
         model = Favorite
-        validators = [
-            validators.UniqueTogetherValidator(
-                queryset=Favorite.objects.all(),
-                fields=('user', 'recipe'),
-                message='"Этот рецепт уже в избранном"'
-            )
-        ]
 
+    def validate(self, attrs):
+        request = self.context['request']
+        if (request.method == 'GET'
+                and Favorite.objects.filter(
+                    user=request.user,
+                    recipe=attrs['recipe']
+                ).exists()):
+            raise serializers.ValidationError(
+                'Рецепт уже есть в избранном'
+            )
+        return attrs
+    
     def to_representation(self, instance):
-        requset = self.context.get('request')
         return RecipeListSerializer(
             instance.recipe,
-            context={'request': requset}
+            context={'request': self.context.get('request')}
         ).data
 
 
@@ -286,17 +311,20 @@ class ShoppingCartSerializer(FavoriteSerializer):
     class Meta(FavoriteSerializer.Meta):
         model = ShoppingCart
         fields = '__all__'
-        validators = [
-            validators.UniqueTogetherValidator(
-                queryset=ShoppingCart.objects.all(),
-                fields=('user', 'recipe'),
-                message='"Этот рецепт уже есть в корзине"'
+        
+    def validate(self, attrs):
+        request = self.context['request']
+        if (request.method == 'GET'
+                and ShoppingCart.objects.filter(
+                    user=request.user,
+                    recipe=attrs['recipe'])):
+            raise serializers.ValidationError(
+                'Такой рецепт уже есть в списке'
             )
-        ]
+        return attrs
 
     def to_representation(self, instance):
-        requset = self.context.get('request')
         return RecipeListSerializer(
             instance.recipe,
-            context={'request': requset}
+            context={'request': self.context.get('request')}
         ).data

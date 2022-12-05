@@ -5,9 +5,12 @@ from djoser.views import UserViewSet
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingCart, Tag)
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from users.models import Subscribe, User
 
 from .filters import IngredientFilter, RecipeFilter
@@ -16,8 +19,8 @@ from .permissions import IsAuthorAdminOrReadOnly
 from .serializers import (CustomUserSerializer, FavoriteSerializer,
                           IngredientSerializer, PasswordSerializer,
                           RecipeCreateSerializer, RecipeListSerializer,
-                          ShoppingCartSerializer, SubscribeSerializer,
-                          TagSerializer)
+                          ShoppingCartSerializer, SubscribersSerializer,
+                          SubscribeSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -188,3 +191,100 @@ class RecipesViewSet(viewsets.ModelViewSet):
 #        permission_classes=[IsAuthenticated, ],
 #    )
 #    def download_shopping_cart(self, request):
+
+@api_view(['get'])
+def subscriptions(request):
+    user_obj = User.objects.filter(following__user=request.user)
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    result_page = paginator.paginate_queryset(user_obj, request)
+    serializer = SubscribersSerializer(
+        result_page,
+        many=True,
+        context={'current_user': request.user}
+    )
+    return paginator.get_paginated_response(serializer.data)
+
+class SubscribeView(APIView):
+
+    def get(self, request, user_id):
+        user = request.user
+        data = {
+            'user': user.id,
+            'author': user_id
+        }
+        serializer = SubscribeSerializer(
+            data=data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def delete(self, request, user_id):
+        user = request.user
+        follow = get_object_or_404(
+            Subscribe,
+            user=user,
+            author_id=user_id
+        )
+        follow.delete()
+        return Response('Вы отписались', status.HTTP_204_NO_CONTENT)
+
+
+class FavoriteViewSet(APIView):
+
+    def get(self, request, recipe_id):
+        user = request.user.id
+        data = {
+            'user': user,
+            'recipe': recipe_id
+        }
+        serializer = FavoriteSerializer(
+            data=data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def delete(self, request, recipe_id):
+        user = request.user
+        favorite_recipe = get_object_or_404(
+            Favorite,
+            user=user,
+            recipe__id=recipe_id
+        )
+        favorite_recipe.delete()
+        return Response(
+            'Рецепт удален',
+            status.HTTP_204_NO_CONTENT
+        )
+
+
+class ShoppingCartView(APIView):
+
+    def get(self, request, recipe_id):
+        user = request.user.id
+        data = {
+            'user': user,
+            'recipe': recipe_id
+        }
+        serializer = ShoppingCartSerializer(
+            data=data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def delete(self, request, recipe_id):
+        user = request.user
+        purchace_list_recipe = get_object_or_404(
+            ShoppingCart,
+            user=user,
+            recipe__id=recipe_id
+        )
+        purchace_list_recipe.delete()
+        return Response(
+            'Рецепт удален',
+            status.HTTP_204_NO_CONTENT
+        )
