@@ -125,65 +125,65 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save()
 
-    @action(
-        methods=['get', 'delete'],
-        detail=True,
-        permission_classes=(IsAuthenticated, )
-    )
-    def favorite(self, request, pk=None):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        in_favorite = Favorite.objects.filter(
-            user=user, recipe=recipe
-        )
-        if user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        if request.method == 'GET':
-            if not in_favorite:
-                favorite = Favorite.objects.create(user=user, recipe=recipe)
-                serializer = FavoriteSerializer(favorite.recipe)
-                return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-        elif request.method == 'DELETE':
-            if not in_favorite:
-                data = {'errors': 'Нет такого рецепта.'}
-                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-            in_favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    # @action(
+    #     methods=['get', 'delete'],
+    #     detail=True,
+    #     permission_classes=(IsAuthenticated, )
+    # )
+    # def favorite(self, request, pk=None):
+    #     user = self.request.user
+    #     recipe = get_object_or_404(Recipe, pk=pk)
+    #     in_favorite = Favorite.objects.filter(
+    #         user=user, recipe=recipe
+    #     )
+    #     if user.is_anonymous:
+    #         return Response(status=status.HTTP_401_UNAUTHORIZED)
+    #     if request.method == 'GET':
+    #         if not in_favorite:
+    #             favorite = Favorite.objects.create(user=user, recipe=recipe)
+    #             serializer = FavoriteSerializer(favorite.recipe)
+    #             return Response(
+    #                 data=serializer.data,
+    #                 status=status.HTTP_201_CREATED
+    #             )
+    #     elif request.method == 'DELETE':
+    #         if not in_favorite:
+    #             data = {'errors': 'Нет такого рецепта.'}
+    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+    #         in_favorite.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        detail=True,
-        methods=["get", "delete"],
-        permission_classes=[IsAuthenticated, ],
-    )
-    def shopping_cart(self, request, pk=None):
-        user = self.request.user
-        recipe = get_object_or_404(Recipe, pk=pk)
-        in_shopping_cart = ShoppingCart.objects.filter(
-            user=user,
-            recipe=recipe
-        )
-        if user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        if request.method == 'GET':
-            if not in_shopping_cart:
-                shopping_cart = ShoppingCart.objects.create(
-                    user=user,
-                    recipe=recipe
-                )
-                serializer = ShoppingCartSerializer(shopping_cart.recipe)
-                return Response(
-                    data=serializer.data,
-                    status=status.HTTP_201_CREATED
-                )
-        elif request.method == 'DELETE':
-            if not in_shopping_cart:
-                data = {'errors': 'Нет такого рецепта.'}
-                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-            in_shopping_cart.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    # @action(
+    #     detail=True,
+    #     methods=["get", "delete"],
+    #     permission_classes=[IsAuthenticated, ],
+    # )
+    # def shopping_cart(self, request, pk=None):
+    #     user = self.request.user
+    #     recipe = get_object_or_404(Recipe, pk=pk)
+    #     in_shopping_cart = ShoppingCart.objects.filter(
+    #         user=user,
+    #         recipe=recipe
+    #     )
+    #     if user.is_anonymous:
+    #         return Response(status=status.HTTP_401_UNAUTHORIZED)
+    #     if request.method == 'GET':
+    #         if not in_shopping_cart:
+    #             shopping_cart = ShoppingCart.objects.create(
+    #                 user=user,
+    #                 recipe=recipe
+    #             )
+    #             serializer = ShoppingCartSerializer(shopping_cart.recipe)
+    #             return Response(
+    #                 data=serializer.data,
+    #                 status=status.HTTP_201_CREATED
+    #             )
+    #     elif request.method == 'DELETE':
+    #         if not in_shopping_cart:
+    #             data = {'errors': 'Нет такого рецепта.'}
+    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+    #         in_shopping_cart.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
 
 #    @action(
 #        methods=['get'],
@@ -192,22 +192,22 @@ class RecipesViewSet(viewsets.ModelViewSet):
 #    )
 #    def download_shopping_cart(self, request):
 
-@api_view(['get'])
-def subscriptions(request):
-    user_obj = User.objects.filter(following__user=request.user)
-    paginator = PageNumberPagination()
-    paginator.page_size = 10
-    result_page = paginator.paginate_queryset(user_obj, request)
-    serializer = SubscribersSerializer(
-        result_page,
-        many=True,
-        context={'current_user': request.user}
-    )
-    return paginator.get_paginated_response(serializer.data)
+# @api_view(['get'])
+# def subscriptions(request):
+#     user_obj = User.objects.filter(following__user=request.user)
+#     paginator = PageNumberPagination()
+#     paginator.page_size = 10
+#     result_page = paginator.paginate_queryset(user_obj, request)
+#     serializer = SubscribeSerializer(
+#         result_page,
+#         many=True,
+#         context={'current_user': request.user}
+#     )
+#     return paginator.get_paginated_response(serializer.data)
 
 class SubscribeView(APIView):
 
-    def get(self, request, user_id):
+    def post(self, request, user_id):
         user = request.user
         data = {
             'user': user.id,
@@ -233,7 +233,7 @@ class SubscribeView(APIView):
 
 class FavoriteViewSet(APIView):
 
-    def get(self, request, recipe_id):
+    def post(self, request, recipe_id):
         user = request.user.id
         data = {
             'user': user,
@@ -262,7 +262,7 @@ class FavoriteViewSet(APIView):
 
 class ShoppingCartView(APIView):
 
-    def get(self, request, recipe_id):
+    def post(self, request, recipe_id):
         user = request.user.id
         data = {
             'user': user,

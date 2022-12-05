@@ -75,12 +75,12 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRecipe',
-#        related_name='recipes',
+        related_name='recipes',
         verbose_name='Ингредиенты'
     )
     tags = models.ManyToManyField(
         Tag,
-#        related_name='recipes',
+        related_name='recipes',
         verbose_name='Тэг'
     )
     pub_date = models.DateTimeField(
