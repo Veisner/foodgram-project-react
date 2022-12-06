@@ -6,9 +6,8 @@ from django.shortcuts import get_object_or_404
 
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, IngredientRecipe,
-                           Recipe, ShoppingCart, Tag)
+                            Recipe, ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework import validators
 from rest_framework.serializers import ValidationError
 from users.models import Subscribe
 
@@ -18,11 +17,12 @@ User = get_user_model()
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')  
-            ext = format.split('/')[-1]  
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
         return super().to_internal_value(data)
+
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
@@ -128,7 +128,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
                 'Рецепт уже есть в избранном'
             )
         return attrs
-    
+
     def to_representation(self, instance):
         return RecipeListSerializer(
             instance.recipe,
@@ -308,7 +308,7 @@ class ShoppingCartSerializer(FavoriteSerializer):
     class Meta(FavoriteSerializer.Meta):
         model = ShoppingCart
         fields = '__all__'
-        
+
     def validate(self, attrs):
         request = self.context['request']
         if (request.method == 'GET'

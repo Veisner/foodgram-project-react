@@ -47,7 +47,7 @@ class Ingredient(models.Model):
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
         ordering = ('name',)
-        
+
     def __str__(self):
         return self.name
 
@@ -88,11 +88,9 @@ class Recipe(models.Model):
         verbose_name='Дата публикации'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        verbose_name = 'Время приготовления',
-        validators=(
-            MinValueValidator(
-                1, message='Минимум 1 минута.'),
-        )
+        verbose_name='Время приготовления',
+        validators=(MinValueValidator(
+                    1, message='Минимум 1 минута.'),)
     )
 
     class Meta:
@@ -115,10 +113,10 @@ class IngredientRecipe(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         related_name='ingredient_recipe',
-                verbose_name='Ингредиент'
+        verbose_name='Ингредиент'
     )
     amount = models.PositiveSmallIntegerField(
-        verbose_name = 'Колличество',
+        verbose_name='Колличество',
         validators=(
             MinValueValidator(
                 1, message='Минимум 1 ингредиент.'),
@@ -169,7 +167,7 @@ class Favorite(models.Model):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         ordering = ('user', 'recipe',)
-    
+
     def __str__(self):
         return f'Рецепт {self.recipe} в избранном у {self.user}'
 

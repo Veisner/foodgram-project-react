@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (Favorite, Ingredient,Recipe,
+from recipes.models import (Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
@@ -47,50 +47,6 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
-    # @action(detail=False,
-    #         methods=['get'],
-    #         permission_classes=(IsAuthenticated, ))
-    # def subscriptions(self, request):
-    #     user = request.user
-    #     queryset = User.objects.filter(follower__user=user)
-    #     pages = self.paginate_queryset(queryset)
-    #     serializer = SubscribeSerializer(
-    #         pages,
-    #         many=True,
-    #         context={'request': request}
-    #     )
-    #     return self.get_paginated_response(serializer.data)
-
-    # @action(
-    #     methods=['get', 'delete'],
-    #     detail=True,
-    #     permission_classes=(IsAuthenticated, )
-    # )
-    # def subscribe(self, request, id):
-    #     user = self.request.user
-    #     author = get_object_or_404(User, id=id)
-    #     subscribe = Subscribe.objects.filter(user=user, author=author)
-    #     if user.is_anonymous:
-    #         return Response(status=status.HTTP_401_UNAUTHORIZED)
-    #     if request.method == 'GET':
-    #         if subscribe.exists():
-    #             data = {
-    #                 'errors': ('Вы уже подписаны.')}
-    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-    #         Subscribe.objects.create(user=user, author=author)
-    #         serializer = SubscribeSerializer(
-    #             author,
-    #             context={'request': request}
-    #         )
-    #         return Response(serializer.data,
-    #                         status=status.HTTP_201_CREATED)
-    #     elif request.method == 'DELETE':
-    #         if not subscribe.exists():
-    #             data = {'errors': 'Вы не подписаны.'}
-    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-    #         subscribe.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class TagsViewSet(RetrieveListViewSet):
     queryset = Tag.objects.all()
@@ -126,72 +82,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save()
 
-    # @action(
-    #     methods=['get', 'delete'],
-    #     detail=True,
-    #     permission_classes=(IsAuthenticated, )
-    # )
-    # def favorite(self, request, pk=None):
-    #     user = self.request.user
-    #     recipe = get_object_or_404(Recipe, pk=pk)
-    #     in_favorite = Favorite.objects.filter(
-    #         user=user, recipe=recipe
-    #     )
-    #     if user.is_anonymous:
-    #         return Response(status=status.HTTP_401_UNAUTHORIZED)
-    #     if request.method == 'GET':
-    #         if not in_favorite:
-    #             favorite = Favorite.objects.create(user=user, recipe=recipe)
-    #             serializer = FavoriteSerializer(favorite.recipe)
-    #             return Response(
-    #                 data=serializer.data,
-    #                 status=status.HTTP_201_CREATED
-    #             )
-    #     elif request.method == 'DELETE':
-    #         if not in_favorite:
-    #             data = {'errors': 'Нет такого рецепта.'}
-    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-    #         in_favorite.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # @action(
-    #     detail=True,
-    #     methods=["get", "delete"],
-    #     permission_classes=[IsAuthenticated, ],
-    # )
-    # def shopping_cart(self, request, pk=None):
-    #     user = self.request.user
-    #     recipe = get_object_or_404(Recipe, pk=pk)
-    #     in_shopping_cart = ShoppingCart.objects.filter(
-    #         user=user,
-    #         recipe=recipe
-    #     )
-    #     if user.is_anonymous:
-    #         return Response(status=status.HTTP_401_UNAUTHORIZED)
-    #     if request.method == 'GET':
-    #         if not in_shopping_cart:
-    #             shopping_cart = ShoppingCart.objects.create(
-    #                 user=user,
-    #                 recipe=recipe
-    #             )
-    #             serializer = ShoppingCartSerializer(shopping_cart.recipe)
-    #             return Response(
-    #                 data=serializer.data,
-    #                 status=status.HTTP_201_CREATED
-    #             )
-    #     elif request.method == 'DELETE':
-    #         if not in_shopping_cart:
-    #             data = {'errors': 'Нет такого рецепта.'}
-    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-    #         in_shopping_cart.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-
-#    @action(
-#        methods=['get'],
-#        detail=False,
-#        permission_classes=[IsAuthenticated, ],
-#    )
-#    def download_shopping_cart(self, request):
 
 @api_view(['get'])
 def subscriptions(request):
@@ -205,6 +95,7 @@ def subscriptions(request):
         context={'current_user': request.user}
     )
     return paginator.get_paginated_response(serializer.data)
+
 
 class SubscribeView(APIView):
 
@@ -290,6 +181,7 @@ class ShoppingCartView(APIView):
             status.HTTP_204_NO_CONTENT
         )
 
+
 class DownloadShoppingCart(APIView):
 
     def get(self, request):
@@ -309,10 +201,10 @@ class DownloadShoppingCart(APIView):
                 else:
                     shopping_list[name]['amount'] = (shopping_list[name]
                                                      ['amount'] + amount)
-        shoppinglist = []
+        shoplist = []
         for item in shopping_list:
-            shoppinglist.append(f'{item} ({shopping_list[item]["unit"]}) — '
+            shoplist.append(f'{item} ({shopping_list[item]["unit"]}) — '
                             f'{shopping_list[item]["amount"]} \n')
-        response = HttpResponse(shoppinglist, 'Content-Type: application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="shoppinglist.pdf"'
+        response = HttpResponse(shoplist, 'Content-Type: application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="shoplist.pdf"'
         return response
