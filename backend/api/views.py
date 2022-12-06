@@ -294,25 +294,25 @@ class DownloadShoppingCart(APIView):
 
     def get(self, request):
         shopping_cart = request.user.purchases.all()
-        shoping_list = {}
+        shopping_list = {}
         for purchase in shopping_cart:
             ingredients = purchase.recipe.ingredientrecipe_set.all()
             for ingredient in ingredients:
                 name = ingredient.ingredient.name
                 amount = ingredient.amount
                 unit = ingredient.ingredient.measurement_unit
-                if name not in shoping_list:
-                    shoping_list[name] = {
+                if name not in shopping_list:
+                    shopping_list[name] = {
                         'amount': amount,
                         'unit': unit
                     }
                 else:
-                    shoping_list[name]['amount'] = (shoping_list[name]
+                    shopping_list[name]['amount'] = (shopping_list[name]
                                                      ['amount'] + amount)
-        shopinglist = []
-        for item in shoping_list:
-            shopinglist.append(f'{item} ({shoping_list[item]["unit"]}) — '
-                            f'{shoping_list[item]["amount"]} \n')
-        response = HttpResponse(shopinglist, 'Content-Type: application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="shopinglist.pdf"'
+        shoppinglist = []
+        for item in shopping_list:
+            shoppinglist.append(f'{item} ({shopping_list[item]["unit"]}) — '
+                            f'{shopping_list[item]["amount"]} \n')
+        response = HttpResponse(shoppinglist, 'Content-Type: application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="shoppinglist.pdf"'
         return response
