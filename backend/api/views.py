@@ -309,10 +309,10 @@ class DownloadShoppingCart(APIView):
                 else:
                     shoping_list[name]['amount'] = (shoping_list[name]
                                                      ['amount'] + amount)
-        wishlist = []
+        shopinglist = []
         for item in shoping_list:
-            wishlist.append(f'{item} ({shoping_list[item]["unit"]}) — '
+            shopinglist.append(f'{item} ({shoping_list[item]["unit"]}) — '
                             f'{shoping_list[item]["amount"]} \n')
-        response = HttpResponse(wishlist, 'Content-Type: application/pdf')
+        response = HttpResponse(shopinglist, 'Content-Type: application/pdf')
         response['Content-Disposition'] = 'attachment; filename="shopinglist.pdf"'
         return response
