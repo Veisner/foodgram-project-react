@@ -55,7 +55,7 @@ class PasswordSerializer(serializers.Serializer):
 
 
 class SubscriptionsRecipeSerializer(serializers.ModelSerializer):
-#    image = Base64ImageField()
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -119,7 +119,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context['request']
-        if (request.method == 'GET'
+        if (request.method == 'POST'
                 and Favorite.objects.filter(
                     user=request.user,
                     recipe=attrs['recipe']

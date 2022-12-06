@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+from recipes.models import (Favorite, Ingredient,Recipe,
                             ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
@@ -293,10 +293,10 @@ class ShoppingCartView(APIView):
 class DownloadShoppingCart(APIView):
 
     def get(self, request):
-        shopping_cart = request.user.purchases.all()
+        shopping_cart = request.user.shopping_cart.all()
         shopping_list = {}
         for purchase in shopping_cart:
-            ingredients = purchase.recipe.ingredientrecipe_set.all()
+            ingredients = purchase.recipe.ingredient_recipe.all()
             for ingredient in ingredients:
                 name = ingredient.ingredient.name
                 amount = ingredient.amount
