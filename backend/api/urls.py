@@ -6,8 +6,8 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
-from .views import (CustomUserViewSet, FavoriteViewSet, IngredientsViewSet, RecipesViewSet,
-                    SubscribeView, ShoppingCartView, TagsViewSet)
+from .views import (CustomUserViewSet, DownloadShoppingCart, FavoriteViewSet, IngredientsViewSet, RecipesViewSet,
+                    SubscribeView, subscriptions, ShoppingCartView, TagsViewSet)
 
 router_v1 = DefaultRouter()
 router_v1.register(r'users', CustomUserViewSet, basename='users')
@@ -17,16 +17,16 @@ router_v1.register(r'recipes', RecipesViewSet, basename='recipes')
 
 
 urlpatterns = [
-#    path('users/subscriptions/',
-#         subscriptions, name='users_subs'),
+    path('users/subscriptions/',
+         subscriptions, name='users_subs'),
     path('users/<int:user_id>/subscribe/',
          SubscribeView.as_view(), name='subscribe'),
     path('recipes/<int:recipe_id>/favorite/',
-         FavoriteViewSet.as_view(), name='add_recipe_to_favorite'),
+         FavoriteViewSet.as_view(), name='add_del_favorite'),
     path('recipes/<int:recipe_id>/shopping_cart/',
-         ShoppingCartView.as_view(), name='add_recipe_to_shopping_cart'),
-#    path('recipes/download_shopping_cart/',
-#         DownloadPurchaseList.as_view(), name='dowload_shopping_cart'),
+         ShoppingCartView.as_view(), name='add_del_shopping_cart'),
+    path('recipes/download_shopping_cart/',
+         DownloadShoppingCart.as_view(), name='dowload_shopping_cart'),
     path('', include(router_v1.urls)),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -46,49 +47,49 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False,
-            methods=['get'],
-            permission_classes=(IsAuthenticated, ))
-    def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(follower__user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(
-            pages,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
+    # @action(detail=False,
+    #         methods=['get'],
+    #         permission_classes=(IsAuthenticated, ))
+    # def subscriptions(self, request):
+    #     user = request.user
+    #     queryset = User.objects.filter(follower__user=user)
+    #     pages = self.paginate_queryset(queryset)
+    #     serializer = SubscribeSerializer(
+    #         pages,
+    #         many=True,
+    #         context={'request': request}
+    #     )
+    #     return self.get_paginated_response(serializer.data)
 
-    @action(
-        methods=['get', 'delete'],
-        detail=True,
-        permission_classes=(IsAuthenticated, )
-    )
-    def subscribe(self, request, id):
-        user = self.request.user
-        author = get_object_or_404(User, id=id)
-        subscribe = Subscribe.objects.filter(user=user, author=author)
-        if user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        if request.method == 'GET':
-            if subscribe.exists():
-                data = {
-                    'errors': ('Вы уже подписаны.')}
-                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-            Subscribe.objects.create(user=user, author=author)
-            serializer = SubscribeSerializer(
-                author,
-                context={'request': request}
-            )
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
-            if not subscribe.exists():
-                data = {'errors': 'Вы не подписаны.'}
-                return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-            subscribe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    # @action(
+    #     methods=['get', 'delete'],
+    #     detail=True,
+    #     permission_classes=(IsAuthenticated, )
+    # )
+    # def subscribe(self, request, id):
+    #     user = self.request.user
+    #     author = get_object_or_404(User, id=id)
+    #     subscribe = Subscribe.objects.filter(user=user, author=author)
+    #     if user.is_anonymous:
+    #         return Response(status=status.HTTP_401_UNAUTHORIZED)
+    #     if request.method == 'GET':
+    #         if subscribe.exists():
+    #             data = {
+    #                 'errors': ('Вы уже подписаны.')}
+    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+    #         Subscribe.objects.create(user=user, author=author)
+    #         serializer = SubscribeSerializer(
+    #             author,
+    #             context={'request': request}
+    #         )
+    #         return Response(serializer.data,
+    #                         status=status.HTTP_201_CREATED)
+    #     elif request.method == 'DELETE':
+    #         if not subscribe.exists():
+    #             data = {'errors': 'Вы не подписаны.'}
+    #             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+    #         subscribe.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagsViewSet(RetrieveListViewSet):
@@ -192,18 +193,18 @@ class RecipesViewSet(viewsets.ModelViewSet):
 #    )
 #    def download_shopping_cart(self, request):
 
-# @api_view(['get'])
-# def subscriptions(request):
-#     user_obj = User.objects.filter(following__user=request.user)
-#     paginator = PageNumberPagination()
-#     paginator.page_size = 10
-#     result_page = paginator.paginate_queryset(user_obj, request)
-#     serializer = SubscribeSerializer(
-#         result_page,
-#         many=True,
-#         context={'current_user': request.user}
-#     )
-#     return paginator.get_paginated_response(serializer.data)
+@api_view(['get'])
+def subscriptions(request):
+    user_obj = User.objects.filter(following__user=request.user)
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    result_page = paginator.paginate_queryset(user_obj, request)
+    serializer = SubscribersSerializer(
+        result_page,
+        many=True,
+        context={'current_user': request.user}
+    )
+    return paginator.get_paginated_response(serializer.data)
 
 class SubscribeView(APIView):
 
@@ -288,3 +289,30 @@ class ShoppingCartView(APIView):
             'Рецепт удален',
             status.HTTP_204_NO_CONTENT
         )
+
+class DownloadShoppingCart(APIView):
+
+    def get(self, request):
+        shopping_cart = request.user.purchases.all()
+        shoping_list = {}
+        for purchase in shopping_cart:
+            ingredients = purchase.recipe.ingredientrecipe_set.all()
+            for ingredient in ingredients:
+                name = ingredient.ingredient.name
+                amount = ingredient.amount
+                unit = ingredient.ingredient.measurement_unit
+                if name not in shoping_list:
+                    shoping_list[name] = {
+                        'amount': amount,
+                        'unit': unit
+                    }
+                else:
+                    shoping_list[name]['amount'] = (shoping_list[name]
+                                                     ['amount'] + amount)
+        wishlist = []
+        for item in shoping_list:
+            wishlist.append(f'{item} ({shoping_list[item]["unit"]}) — '
+                            f'{shoping_list[item]["amount"]} \n')
+        response = HttpResponse(wishlist, 'Content-Type: application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="shopinglist.pdf"'
+        return response

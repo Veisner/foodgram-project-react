@@ -55,7 +55,7 @@ class PasswordSerializer(serializers.Serializer):
 
 
 class SubscriptionsRecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
+#    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -76,13 +76,10 @@ class SubscribersSerializer(serializers.ModelSerializer):
                   'is_subscribed', 'recipes', 'recipes_count',)
 
     def get_is_subscribed(self, obj):
-        user = self.context['request'].user
-        if user.is_anonymous:
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
             return False
-        return Subscribe.objects.filter(
-            user=user,
-            author=obj
-        ).exists()
+        return Subscribe.objects.filter(user=obj, author=request.user).exists()
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
