@@ -6,7 +6,7 @@ services:
       - /var/lib/postgresql/data/
     env_file:
       - ./.env
-  backend:
+  web:
     image: veisner/foodgram_backend:latest
     restart: always
     volumes:
@@ -21,7 +21,7 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - backend
+      - web
   nginx:
     image: nginx:1.19.3
     ports:
