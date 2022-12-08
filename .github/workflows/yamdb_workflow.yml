@@ -54,7 +54,7 @@ jobs:
         with:
           push: true
           context: ./backend/
-          tags: veisner/foodgram_web:latest
+          tags: veisner/foodgram_backend:latest
   
   # build_frontend:
   #   name: Push frontend to Docker Hub
@@ -82,7 +82,7 @@ jobs:
   #       with:
   #         push: true
   #         context: ./frontend/
-  #         tags: veisner/frontend:latest
+  #         tags: veisner/foodgram_frontend:latest
 
   deploy:
     runs-on: ubuntu-latest
