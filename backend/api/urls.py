@@ -1,13 +1,12 @@
 from django.urls import include, path, re_path
-
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
 from .views import (CustomUserViewSet, DownloadShoppingCart, FavoriteViewSet,
-                    IngredientsViewSet, RecipesViewSet, SubscribeView,
-                    subscriptions, ShoppingCartView, TagsViewSet)
+                    IngredientsViewSet, RecipesViewSet, ShoppingCartView,
+                    SubscribeView, TagsViewSet, subscriptions)
 
 router_v1 = DefaultRouter()
 router_v1.register(r'users', CustomUserViewSet, basename='users')
