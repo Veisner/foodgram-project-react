@@ -7,8 +7,6 @@ http://127.0.0.1:8000/api/users/  Post-запрос (email, username, password) 
 http://127.0.0.1:8000/api/auth/token/login  Post-запрос (username, password) получить токен
 
 
-
-
 создать файл .env c переменными окружения.
 
 Запуск контейнера:
