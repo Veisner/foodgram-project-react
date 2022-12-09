@@ -14,7 +14,7 @@ DEBUG = os.environ.get('DEBUG', default=False)
 ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = [
-    'http://130.193.41.109:3000',
+    'http://localhost:3000',
 ]
 
 
@@ -153,5 +153,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 INTERNAL_IPS = [
-    '130.193.41.109',
+    '127.0.0.1',
 ]
