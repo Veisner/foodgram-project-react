@@ -15,6 +15,8 @@ ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'http://130.193.41.109:3000',
+    'http://130.193.41.109:8000'
 ]
 
 
@@ -141,11 +143,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/backend_static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static')
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = '/backend_media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media')
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -154,4 +156,5 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 INTERNAL_IPS = [
     '127.0.0.1',
+    '130.193.41.109',
 ]
