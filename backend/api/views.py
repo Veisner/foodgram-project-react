@@ -30,8 +30,6 @@ class CustomUserViewSet(UserViewSet):
             permission_classes=(IsAuthenticated, ))
     def set_password(self, request, pk=None):
         user = self.request.user
-        if user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         serializer = PasswordSerializer(
             data=request.data,
             context={'request': request}
