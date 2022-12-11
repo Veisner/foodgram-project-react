@@ -251,7 +251,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             IngredientRecipe.objects.update_or_create(
                 recipe=recipe, ingredient=ingredient_id,
                 defaults={'amount': amount})
-    
+
     @staticmethod
     def create_ingredients(ingredients, recipe):
         IngredientRecipe.objects.bulk_create([
