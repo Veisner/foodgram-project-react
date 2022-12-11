@@ -2,16 +2,16 @@
 
 ![Foodgram_workflow](https://github.com/Veisner/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
 
-http://127.0.0.1:8000/api/users/  Post-запрос (email, username, password) создать юзера
+Документация:
 
-http://127.0.0.1:8000/api/auth/token/login  Post-запрос (username, password) получить токен
+http://130.193.41.109/api/docs/
 
 
 создать файл .env c переменными окружения.
 
 Запуск контейнера:
 
-docker-compose up -d
+sudo docker compose up -d
 
 Миграции:
 

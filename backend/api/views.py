@@ -34,12 +34,11 @@ class CustomUserViewSet(UserViewSet):
             data=request.data,
             context={'request': request}
         )
-        if serializer.is_valid():
-            user.set_password(serializer.data['new_password'])
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        user.set_password(serializer.data['new_password'])
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagsViewSet(RetrieveListViewSet):
