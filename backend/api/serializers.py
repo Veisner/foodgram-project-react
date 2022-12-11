@@ -267,21 +267,21 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        IngredientRecipe.objects.bulk_create([
-            IngredientRecipe(
-                recipe=recipe,
-                amount=ingredient.get('amount'),
-                ingredient=get_object_or_404(
-                    Ingredient, id=ingredient.get('id'))
-            ) for ingredient in ingredients
-        ])
-        # for ingredient in ingredients:
-        #     id = ingredient.get('id')
-        #     amount = ingredient.get('amount')
-        #     ingredient_id = get_object_or_404(Ingredient, id=id)
-        #     IngredientRecipe.objects.create(
-        #         recipe=recipe, ingredient=ingredient_id, amount=amount
-        #     )
+        # IngredientRecipe.objects.bulk_create([
+        #     IngredientRecipe(
+        #         recipe=recipe,
+        #         amount=ingredient.get('amount'),
+        #         ingredient=get_object_or_404(
+        #             Ingredient, id=ingredient.get('id'))
+        #     ) for ingredient in ingredients
+        # ])
+        for ingredient in ingredients:
+            id = ingredient.get('id')
+            amount = ingredient.get('amount')
+            ingredient_id = get_object_or_404(Ingredient, id=id)
+            IngredientRecipe.objects.create(
+                recipe=recipe, ingredient=ingredient_id, amount=amount
+            )
         recipe.save()
         return recipe
 
