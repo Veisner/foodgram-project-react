@@ -228,9 +228,11 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(),
-        many=True
+    tags = serializers.ListField(
+        child=serializers.SlugRelatedField(
+            slug_field='id',
+            queryset=Tag.objects.all(),
+        ),
     )
     ingredients = IngredientRecipeCreateSerializer(many=True)
     image = Base64ImageField(
