@@ -116,6 +116,9 @@ class SubscribeView(APIView):
 
 
 class FavoriteViewSet(APIView):
+    permission_classes = (IsAuthorAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = RecipeFilter
 
     def post(self, request, recipe_id):
         user = request.user.id
