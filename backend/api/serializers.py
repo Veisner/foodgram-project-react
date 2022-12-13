@@ -228,7 +228,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True)
     ingredients = IngredientRecipeCreateSerializer(many=True)
     image = Base64ImageField(
         required=False,
@@ -244,9 +244,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get('ingredients')
         if ingredients == []:
             raise ValidationError('Минимум 1 ингридиент!')
-        for ingredient in ingredients:
-            if int(ingredient['amount']) <= 0:
-                raise ValidationError('Количество минимум 1!')
+        # for ingredient in ingredients:
+        #     if int(ingredient['amount']) <= 0:
+        #         raise ValidationError('Количество минимум 1!')
         return data
 
     def get_ingredients(self, obj):
