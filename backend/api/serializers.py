@@ -134,6 +134,22 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(
+        read_only=True
+    )
+    name = serializers.CharField(
+        max_length=200,
+        read_only=True
+    )
+    color = serializers.CharField(
+        max_length=7,
+        read_only=True
+    )
+    slug = serializers.SlugField(
+        max_length=200,
+        read_only=True
+    )
+
     class Meta:
         model = Tag
         fields = '__all__'
@@ -181,8 +197,9 @@ class RecipeListSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField(
+        source='image',
         required=False,
-        allow_null=True
+        use_url=True
     )
 
     class Meta:
@@ -218,8 +235,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
     ingredients = IngredientRecipeCreateSerializer(many=True)
     image = Base64ImageField(
+        source='image',
         required=False,
-        allow_null=True
+        use_url=True
     )
 
     class Meta:
