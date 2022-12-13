@@ -228,12 +228,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    tags = serializers.ListField(
-        child=serializers.SlugRelatedField(
-            slug_field='id',
-            queryset=Tag.objects.all(),
-        ),
-    )
+    tags = TagSerializer(many=True, read_only=True)
     ingredients = IngredientRecipeCreateSerializer(many=True)
     image = Base64ImageField(
         required=False,
