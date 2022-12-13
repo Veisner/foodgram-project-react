@@ -148,7 +148,7 @@ class TagSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(
         max_length=200,
         read_only=True
-        )
+    )
 
     class Meta:
         model = Tag
