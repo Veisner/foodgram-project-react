@@ -134,22 +134,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    name = serializers.CharField(
-        max_length=200,
-        read_only=True
-    )
-    color = serializers.CharField(
-        max_length=7,
-        read_only=True
-    )
-    slug = serializers.SlugField(
-        max_length=200,
-        read_only=True
-    )
-
     class Meta:
         model = Tag
         fields = '__all__'
@@ -228,7 +212,10 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    tags = TagSerializer(many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True
+    )
     ingredients = IngredientRecipeCreateSerializer(many=True)
     image = Base64ImageField(
         required=False,
@@ -244,9 +231,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get('ingredients')
         if ingredients == []:
             raise ValidationError('Минимум 1 ингридиент!')
-        # for ingredient in ingredients:
-        #     if int(ingredient['amount']) <= 0:
-        #         raise ValidationError('Количество минимум 1!')
+        for ingredient in ingredients:
+            if int(ingredient['amount']) <= 0:
+                raise ValidationError('Количество минимум 1!')
         return data
 
     def get_ingredients(self, obj):
