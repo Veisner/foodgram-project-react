@@ -1,4 +1,4 @@
-# praktikum_new_diplom
+# Продуктовый помощник Foodgram.
 
 Данный проект выполняется для курса Python-разработчик от Яндекс.Практикума
 
@@ -17,7 +17,6 @@
 [![Yandex.Cloud](https://img.shields.io/badge/-Yandex.Cloud-464646?style=flat-square&logo=Yandex.Cloud)](https://cloud.yandex.ru/)
 
 
-# Продуктовый помощник Foodgram.
 
 Проект развернут по адресу: http://130.193.41.109/
 
